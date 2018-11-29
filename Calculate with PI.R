@@ -3,9 +3,10 @@
 
 library(ggplot2)
 library(fields)
+library(gganimate)
 
 #Read in pi string, remove point and turn into vector
-piChar <- read.table("data/PI_1000000.txt", stringsAsFactors=F, colClasses = c("character"))[1,1]
+piChar <- read.table("data/PI_10000.txt", stringsAsFactors=F, colClasses = c("character"))[1,1]
 piChar <- gsub(".","",piChar)
 piVec <- as.numeric(strsplit(piChar, "")[[1]])
 
@@ -19,7 +20,9 @@ y[1] <- 0
 for (i in 2:length(piVec)){
     x[i] <- x[(i-1)] + sin((pi*2)*(piVec[i]/10))
     y[i] <- y[(i-1)] + cos((pi*2)*(piVec[i]/10))  
-}#for i
+}
+
+#for i
 
 
 #Several color schemes
@@ -52,9 +55,8 @@ piPlot <- ggplot(Pi.frame[1:N,], aes(x=x, y=y, group="1")) +
   #geom_point(aes(x=x[length(x)], y=y[length(y)]), size=4, color="black") +
   coord_fixed(ratio = 1) + 
   theme_bw() +
-  theme(line = element_blank(),
-        text = element_blank(),
-        line = element_blank(),
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank(),
         title = element_blank(),
         legend.position="none",
         panel.border = element_blank(),
@@ -66,21 +68,36 @@ ggsave(plot=piPlot, filename=paste("piPlot_",N,"_ColorRainbowDark.pdf",sep=""))
 
 #Color according to position in pi, thus looping throug the chosen colors once
 N <- 100000
-piPlot <- ggplot(Pi.frame[1:N,], aes(x=x, y=y, group="1")) +
+
+anim_data <- Pi.frame
+anim_data$ID <- as.factor(anim_data$ID)
+
+piPlot <- ggplot(Pi.frame[1:nrow(Pi.frame),], aes(x=x, y=y, group = "1")) +
   geom_path(aes(color = ID), size=0.7) + 
   scale_colour_gradientn(colours = rainbowColDark) +
-  #geom_point(aes(x=0, y=0), size=4, color="black") +
-  #geom_point(aes(x=x[length(x)], y=y[length(y)]), size=4, color="black") +
   coord_fixed(ratio = 1) + 
   theme_bw() +
-  theme(line = element_blank(),
+  theme(panel.grid = element_blank(),
+        axis.ticks = element_blank(),
         text = element_blank(),
-        line = element_blank(),
         title = element_blank(),
         legend.position="none",
         panel.border = element_blank(),
-        panel.background = element_blank())
+        panel.background = element_blank()) +
+        transition_reveal(id = "1", along = ID) 
+
+animate(piPlot, nframes = 100, fps = 10, type = "cairo", renderer = gifski_renderer(loop = FALSE))
+anim_save("20_points.gif")
+
+
+#  transition_manual(ID) +
+#  ease_aes("linear")
+
+#  animate(piPlot, nframes = 100, fps = 10)
+
 plot(piPlot)
+
+
 ggsave(plot=piPlot, filename=paste("piPlot_",N,"_IDColorRainbowDark_Smooth.pdf",sep=""))
 #ggsave(plot=piPlot, filename=paste("piPlot_",N,"_IDColorRainbowDark_Smooth.jpeg",sep=""),
 #       scale=2, units="cm")
@@ -108,9 +125,8 @@ piPlot <- ggplot(Pi.frame, aes(x=x, y=ID)) +
   geom_path(aes(color = ID), size=0.25) +
   scale_colour_gradientn(colours = cubeColors) +
   theme_bw() +
-  theme(line = element_blank(),
+  theme(
         text = element_blank(),
-        line = element_blank(),
         title = element_blank(),
         legend.position="none",
         panel.border = element_blank(),
@@ -123,9 +139,9 @@ piPlot <- ggplot(Pi.frame, aes(x=y, y=ID)) +
   geom_path(aes(color = ColID), size=0.25) +
   scale_colour_gradientn(colours = ColRamp) +
   theme_bw() +
-  theme(line = element_blank(),
+  theme(
         text = element_blank(),
-        line = element_blank(),
+        
         title = element_blank(),
         legend.position="none",
         panel.border = element_blank(),
@@ -139,9 +155,9 @@ piPlot <- ggplot(Pi.frame[1:1000,], aes(x=PI, y=ID)) +
   #geom_path(aes(color = "grey"), size=0.5) +
   #scale_colour_gradientn(colours = ColRamp) +
   theme_bw() +
-  theme(line = element_blank(),
+  theme(
         text = element_blank(),
-        line = element_blank(),
+        
         title = element_blank(),
         legend.position="none",
         panel.border = element_blank(),
