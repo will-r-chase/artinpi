@@ -1,13 +1,12 @@
 #Create a walk using the digits of pi to decide the direction to step into
 #Created by Nadieh Bremer - VisualCinnamon.com
 
-library(ggplot2)
 library(fields)
 library(gganimate)
 
 #Read in pi string, remove point and turn into vector
 piChar <- read.table("data/PI_10000.txt", stringsAsFactors=F, colClasses = c("character"))[1,1]
-piChar <- gsub(".","",piChar)
+#piChar <- gsub(".","",piChar)
 piVec <- as.numeric(strsplit(piChar, "")[[1]])
 
 #Starting at number 3 at position 0,0
